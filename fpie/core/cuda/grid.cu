@@ -141,10 +141,12 @@ std::tuple<py::array_t<unsigned char>, py::array_t<float>> CudaGridSolver::step(
     // cudaDeviceSynchronize();
   }
   cudaDeviceSynchronize();
+  cuda_check("iter_grid_kernel");
   copy_img_grid_kernel<<<grid_dim, block_dim>>>(N, M, ctgt, cimgbuf);
   error_grid_kernel<<<grid_dim, block_dim>>>(N, M, cmask, ctgt, cgrad, tmp,
                                              cerr);
   cudaDeviceSynchronize();
+  cuda_check("copy_img_grid_kernel/error_grid_kernel");
 
   cudaMemcpy(err, cerr, 3 * sizeof(float), cudaMemcpyDeviceToHost);
   cudaMemcpy(imgbuf, cimgbuf, N * m3 * sizeof(unsigned char),

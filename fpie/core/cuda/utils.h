@@ -41,4 +41,10 @@ inline __host__ __device__ float3 fabs(float3 v) {
 
 void print_cuda_info();
 
+// Throws if a prior async call (kernel launch, memcpy, ...) failed. Kernel
+// launch errors are otherwise silent: a failed launch leaves device buffers
+// untouched, so step() would keep returning a stale/garbage image instead of
+// surfacing the failure.
+void cuda_check(const char* what);
+
 #endif  // FPIE_CORE_CUDA_UTILS_H_

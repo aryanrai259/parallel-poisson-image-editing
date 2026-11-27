@@ -208,6 +208,15 @@ def environment() -> dict:
         except (FileNotFoundError, subprocess.TimeoutExpired):
             return ""
 
+    # WSL exposes nvidia-smi under /usr/lib/wsl/lib, which only lands on PATH
+    # via the interactive-shell profile snippet that sources it; a plain
+    # subprocess (no shell profile) doesn't see it, so a bare "nvidia-smi"
+    # lookup silently raises FileNotFoundError here and env["gpu"] ends up "".
+    nvidia_smi = shutil.which("nvidia-smi") or next(
+        (p for p in ("/usr/lib/wsl/lib/nvidia-smi", "/usr/bin/nvidia-smi") if os.path.exists(p)),
+        "nvidia-smi",
+    )
+
     lscpu = cmd("lscpu")
     model = re.search(r"Model name:\s*(.*)", lscpu)
     env = {
@@ -217,7 +226,7 @@ def environment() -> dict:
         "logical_cpus": logical_cpus(),
         "physical_cores": physical_cores(),
         "mem_total": cmd("bash", "-c", "free -h | awk '/Mem:/ {print $2}'"),
-        "gpu": cmd("nvidia-smi", "--query-gpu=name,driver_version,memory.total", "--format=csv,noheader"),
+        "gpu": cmd(nvidia_smi, "--query-gpu=name,driver_version,memory.total", "--format=csv,noheader"),
         "nvcc": cmd("bash", "-c", "nvcc --version | tail -n 2 | head -n 1"),
         "nvcpp": cmd("bash", "-c", "nvc++ --version | sed -n 2p"),
         "gcc": cmd("bash", "-c", "gcc --version | head -n 1"),

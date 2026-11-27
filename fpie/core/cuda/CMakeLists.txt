@@ -30,9 +30,21 @@ if(USE_HIP)
                                              "${CMAKE_HIP_ARCHITECTURES}")
   target_compile_definitions(core_cuda PRIVATE USE_HIP)
 else()
+  # Auto-detect the installed GPU's native SASS architecture, mirroring the
+  # HIP branch above; an explicit -DCMAKE_CUDA_ARCHITECTURES overrides it.
+  # The previous "OFF" left nvcc with no -arch/-gencode at all, so it fell
+  # back to embedding only PTX for its own (newest) default virtual
+  # architecture. When the installed display driver predates that CUDA
+  # toolkit, the driver can't JIT that PTX and every kernel launch fails
+  # with cudaErrorUnsupportedPtxVersion -- silently, since nothing checked
+  # cudaGetLastError(), so step() kept returning a stale/unwritten image
+  # (and a zeroed error) no matter how many iterations were requested.
+  # Native SASS for the actual GPU skips the PTX JIT path entirely.
+  if(NOT CMAKE_CUDA_ARCHITECTURES)
+    set(CMAKE_CUDA_ARCHITECTURES "native")
+  endif()
   find_package(CUDA REQUIRED)
   enable_language(CUDA)
   pybind11_add_module(core_cuda solver.cc ${CUDA_SOURCES})
-  set_target_properties(core_cuda PROPERTIES CUDA_ARCHITECTURES OFF)
   target_link_libraries(core_cuda PRIVATE cudart)
 endif()
