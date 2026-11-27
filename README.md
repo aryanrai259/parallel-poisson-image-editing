@@ -1,3 +1,73 @@
+# Parallel Poisson Image Editing: OpenMP, MPI, CUDA and OpenACC
+
+Experiential Learning project for **Parallel Architecture and GPU Programming (CS372IA)**, Department of
+Computer Science and Engineering, RV College of Engineering, Bengaluru, 2026-27.
+
+Team: Aniruddh Shreyas, Aryan Rai, Aarnav Kembhavi. Guide: Dr. Sandhya S.
+
+Poisson image editing pastes a region of one photo into another so that the seam disappears: it solves a
+sparse linear system with one unknown per pasted pixel. Each update reads only four neighbours, which makes
+the solver a clean test case for every parallel model taught in the course. This repository builds on
+[Fast-Poisson-Image-Editing](https://github.com/Trinkle23897/Fast-Poisson-Image-Editing) by Jiayi Weng and
+Zixu Chen (MIT licence), which provides the serial C++, OpenMP, MPI, CUDA, Numba and Taichi solvers.
+
+## What this project adds
+
+| Addition | Where |
+|---|---|
+| OpenACC backend: the same directive-based source built for the GPU (`openacc`) and for CPU cores (`openacc-mc`), with arrays kept resident on the device between calls | `fpie/core/openacc/` |
+| Selectable OpenMP loop schedule (`--omp-schedule static\|dynamic\|guided`, `--omp-chunk`) | `fpie/core/openmp/`, `fpie/args.py` |
+| Benchmark harness: backends vs problem size, OpenMP strong scaling with an Amdahl fit, schedules, MPI processes and synchronisation interval, CUDA launch geometry, solver variants | `bench/run_bench.py` |
+| Accuracy check of every backend against the exact solution of the sparse system (SciPy LU) | `bench/accuracy.py` |
+| Figures and summaries from the measurements | `bench/make_figures.py`, `results/` |
+| Interactive demo: race the backends on an example, live thread-scaling sweep, all results | `demo/` |
+| Tests for the new code | `tests/test_pagp_el.py` |
+
+## Mapping to the lab programs
+
+| Lab program | Concept | Used here |
+|---|---|---|
+| 1a, 2, 3, 4, 6 (OpenMP) | `parallel for`, threads, schedules, timing with `omp_get_wtime` | OpenMP backend, thread scaling, schedule study |
+| 1b, 5 (MPI) | processes, point-to-point messages, broadcast | MPI backend: unknowns split into blocks; every k iterations rank 0 gathers the blocks (Send/Recv) and broadcasts the full vector |
+| 7 (OpenACC) | `parallel loop`, data regions | OpenACC backend on GPU and multicore |
+| GPU programming (theory) | threads, blocks, grids, memory | CUDA backend, block and tile size study |
+
+## Quick start (Ubuntu or WSL2)
+
+```bash
+bash scripts/setup_wsl.sh          # packages, venv, all available backends, test data, tests
+source .venv/bin/activate
+fpie --check-backend               # e.g. ['numpy', 'numba', ..., 'gcc', 'openmp', 'mpi', 'cuda', 'openacc', 'openacc-mc']
+bash demo/launch.sh                # demo at http://localhost:8501
+```
+
+The CUDA backend is built when `nvcc` is on the `PATH` (CUDA toolkit for WSL-Ubuntu) and the OpenACC
+backends when `nvc++` is (NVIDIA HPC SDK); see `fpie/core/openacc/build.sh` for a GCC alternative.
+
+Single runs:
+
+```bash
+fpie -s bench/data/test5_src.jpg -m bench/data/test5_mask.png -t bench/data/test5_tgt.jpg -o out.png \
+     -h0 -70 -w0 0 -h1 50 -w1 0 -n 5000 -b openacc
+mpiexec -np 8 fpie -s bench/data/square10.png -t bench/data/square10.png -m bench/data/square10.png \
+     -o out.png -n 5000 -b mpi
+fpie-gui -s bench/data/test3_src.jpg -t bench/data/test3_tgt.jpg -o out.png -b cuda -n 10000
+```
+
+## Reproducing the measurements
+
+```bash
+python bench/run_bench.py          # all experiments, 3 repeats each (about 30 minutes)
+python bench/make_figures.py       # results/figures/*.png, results/summary.md
+```
+
+`results/env.json` records the machine, compilers and drivers used. Results of the last full run are in
+[`results/summary.md`](results/summary.md).
+
+---
+
+# Upstream README
+
 # Poisson Image Editing - A Parallel Implementation
 
 [![PyPI](https://img.shields.io/pypi/v/fpie)](https://pypi.org/project/fpie/)
