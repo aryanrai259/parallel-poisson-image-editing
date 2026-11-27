@@ -12,8 +12,11 @@ set -euo pipefail
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 python_bin="${PYTHON:-python3}"
-pkg_dir="$("$python_bin" -c 'import os, fpie; print(os.path.dirname(fpie.__file__))')"
-ext_suffix="$("$python_bin" -c 'import sysconfig; print(sysconfig.get_config_var("EXT_SUFFIX"))')"
+# -I (isolated mode) keeps the repo's cwd off sys.path, so this resolves the
+# venv's installed fpie package instead of the source tree's fpie/ directory
+# (which would otherwise shadow it when this script runs from the repo root).
+pkg_dir="$("$python_bin" -I -c 'import os, fpie; print(os.path.dirname(fpie.__file__))')"
+ext_suffix="$("$python_bin" -I -c 'import sysconfig; print(sysconfig.get_config_var("EXT_SUFFIX"))')"
 includes="$("$python_bin" -m pybind11 --includes) -I${here}/.."
 sources="${here}/equ.cc ${here}/grid.cc ${here}/solver.cc"
 compiler="${ACC_COMPILER:-nvc++}"
