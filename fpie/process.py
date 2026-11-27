@@ -88,6 +88,22 @@ try:
 except ImportError:
     core_cuda = None
 
+try:
+    from fpie import core_openacc  # type: ignore
+
+    ALL_BACKEND.append("openacc")
+except ImportError:
+    core_openacc = None
+
+try:
+    from fpie import core_openacc_mc  # type: ignore
+
+    ALL_BACKEND.append("openacc-mc")
+except ImportError:
+    core_openacc_mc = None
+
+OMP_SCHEDULES = {"static": 1, "dynamic": 2, "guided": 3}
+
 
 class BaseProcessor(ABC):
     """Define the common processor interface."""
@@ -104,6 +120,7 @@ class BaseProcessor(ABC):
                 "openmp": "Please make sure your gcc is compatible with `-fopenmp` option.",
                 "mpi": "Please install MPI and run `pip install mpi4py`.",
                 "cuda": "Please make sure nvcc and cuda-related libraries are available.",
+                "openacc": "Please build it with fpie/core/openacc/build.sh.",
                 "taichi": "Please run `pip install taichi`.",
             }
             print(error_msg[backend.split("-")[0]])
@@ -181,6 +198,8 @@ class EquProcessor(BaseProcessor):
         n_cpu: int = CPU_COUNT,
         min_interval: int = 100,
         block_size: int = 1024,
+        omp_schedule: str = "static",
+        omp_chunk: int = 0,
     ):
         """Create an equation-based processor for the selected backend."""
         core: Any | None = None
@@ -193,13 +212,19 @@ class EquProcessor(BaseProcessor):
         elif backend == "gcc":
             core = core_gcc.EquSolver()
         elif backend == "openmp" and core_openmp is not None:
-            core = core_openmp.EquSolver(n_cpu)
+            core = core_openmp.EquSolver(
+                n_cpu, OMP_SCHEDULES[omp_schedule], omp_chunk
+            )
         elif backend == "mpi" and core_mpi is not None:
             mpi = _ensure_mpi_initialized()
             core = core_mpi.EquSolver(min_interval)
             rank = mpi.COMM_WORLD.Get_rank()
         elif backend == "cuda" and core_cuda is not None:
             core = core_cuda.EquSolver(block_size)
+        elif backend == "openacc" and core_openacc is not None:
+            core = core_openacc.EquSolver()
+        elif backend == "openacc-mc" and core_openacc_mc is not None:
+            core = core_openacc_mc.EquSolver()
         elif backend.startswith("taichi") and taichi_solver is not None:
             core = taichi_solver.EquSolver(backend, n_cpu, block_size)
 
@@ -320,6 +345,8 @@ class GridProcessor(BaseProcessor):
         block_size: int = 1024,
         grid_x: int = 8,
         grid_y: int = 8,
+        omp_schedule: str = "static",
+        omp_chunk: int = 0,
     ):
         """Create a grid-based processor for the selected backend."""
         core: Any | None = None
@@ -332,13 +359,19 @@ class GridProcessor(BaseProcessor):
         elif backend == "gcc":
             core = core_gcc.GridSolver(grid_x, grid_y)
         elif backend == "openmp" and core_openmp is not None:
-            core = core_openmp.GridSolver(grid_x, grid_y, n_cpu)
+            core = core_openmp.GridSolver(
+                grid_x, grid_y, n_cpu, OMP_SCHEDULES[omp_schedule], omp_chunk
+            )
         elif backend == "mpi" and core_mpi is not None:
             mpi = _ensure_mpi_initialized()
             core = core_mpi.GridSolver(min_interval)
             rank = mpi.COMM_WORLD.Get_rank()
         elif backend == "cuda" and core_cuda is not None:
             core = core_cuda.GridSolver(grid_x, grid_y)
+        elif backend == "openacc" and core_openacc is not None:
+            core = core_openacc.GridSolver(grid_x, grid_y)
+        elif backend == "openacc-mc" and core_openacc_mc is not None:
+            core = core_openacc_mc.GridSolver(grid_x, grid_y)
         elif backend.startswith("taichi") and taichi_solver is not None:
             core = taichi_solver.GridSolver(
                 grid_x, grid_y, backend, n_cpu, block_size

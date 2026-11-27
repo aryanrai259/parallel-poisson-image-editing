@@ -4,8 +4,13 @@
 
 #include "solver.h"
 
-OpenMPGridSolver::OpenMPGridSolver(int grid_x, int grid_y, int n_cpu)
-    : imgbuf(NULL), tmp(NULL), GridSolver(grid_x, grid_y) {
+OpenMPGridSolver::OpenMPGridSolver(int grid_x, int grid_y, int n_cpu,
+                                   int sched_kind, int sched_chunk)
+    : imgbuf(NULL),
+      tmp(NULL),
+      sched_kind(sched_kind),
+      sched_chunk(sched_chunk),
+      GridSolver(grid_x, grid_y) {
   omp_set_num_threads(n_cpu);
 }
 
@@ -77,8 +82,10 @@ OpenMPGridSolver::step(int iteration) {
   int block_x = (N + grid_x - 1) / grid_x;
   int block_y = (M + grid_y - 1) / grid_y;
 
+  // The tile sweep uses the schedule chosen at construction.
+  omp_set_schedule(static_cast<omp_sched_t>(sched_kind), sched_chunk);
   for (int i = 0; i < iteration; ++i) {
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(runtime)
     for (int block_id = 0; block_id < block_x * block_y; ++block_id) {
       int id_x = block_id / block_y * grid_x,
           id_y = block_id % block_y * grid_y;

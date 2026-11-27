@@ -116,6 +116,8 @@ def main() -> None:
             args.cpu,
             args.mpi_sync_interval,
             args.block_size,
+            omp_schedule=args.omp_schedule,
+            omp_chunk=args.omp_chunk,
         )
     else:
         proc = GridProcessor(
@@ -126,6 +128,8 @@ def main() -> None:
             args.block_size,
             args.grid_x,
             args.grid_y,
+            omp_schedule=args.omp_schedule,
+            omp_chunk=args.omp_chunk,
         )
     print(
         f"Successfully initialize PIE {args.method} solver "
