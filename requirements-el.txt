@@ -1,0 +1,11 @@
+numpy
+opencv-python
+mpi4py
+numba
+scipy
+pandas
+matplotlib
+streamlit
+pybind11
+cmake
+pytest

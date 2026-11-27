@@ -118,6 +118,19 @@ def get_args(gen_type: str) -> argparse.Namespace:
             default=100,
         )
     parser.add_argument(
+        "--omp-schedule",
+        type=str,
+        choices=["static", "dynamic", "guided"],
+        default="static",
+        help="OpenMP loop schedule for the openmp backend",
+    )
+    parser.add_argument(
+        "--omp-chunk",
+        type=int,
+        default=0,
+        help="OpenMP chunk size (0 = runtime default)",
+    )
+    parser.add_argument(
         "--grid-x", type=int, help="x axis stride for grid solver", default=8
     )
     parser.add_argument(

@@ -196,13 +196,16 @@ std::tuple<py::array_t<unsigned char>, py::array_t<float>> CudaEquSolver::step(
     // cudaDeviceSynchronize();
   }
   cudaDeviceSynchronize();
+  cuda_check("iter_equ_kernel");
   grid_size = (N * 3 - 3 + block_size - 1) / block_size;
   copy_X_equ_kernel<<<grid_size, block_size>>>(3, 3 * N, cX, cimgbuf);
   grid_size = (N - 1 + block_size - 1) / block_size;
   error_equ_kernel<<<grid_size, block_size>>>(1, N, cA, cB, cX, tmp);
   cudaDeviceSynchronize();
+  cuda_check("copy_X_equ_kernel/error_equ_kernel");
   error_sum_equ_kernel<<<1, block_size>>>(N, block_size, tmp, cerr);
   cudaDeviceSynchronize();
+  cuda_check("error_sum_equ_kernel");
 
   cudaMemcpy(err, cerr, 3 * sizeof(float), cudaMemcpyDeviceToHost);
   cudaMemcpy(imgbuf, cimgbuf, 3 * N * sizeof(unsigned char),

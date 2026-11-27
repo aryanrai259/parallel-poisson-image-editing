@@ -4,8 +4,14 @@
 
 #include "solver.h"
 
-OpenMPEquSolver::OpenMPEquSolver(int n_cpu)
-    : maskbuf(NULL), imgbuf(NULL), tmp(NULL), n_mid(0), EquSolver() {
+OpenMPEquSolver::OpenMPEquSolver(int n_cpu, int sched_kind, int sched_chunk)
+    : maskbuf(NULL),
+      imgbuf(NULL),
+      tmp(NULL),
+      n_mid(0),
+      sched_kind(sched_kind),
+      sched_chunk(sched_chunk),
+      EquSolver() {
   omp_set_num_threads(n_cpu);
 }
 
@@ -106,12 +112,14 @@ void OpenMPEquSolver::calc_error() {
 
 std::tuple<py::array_t<unsigned char>, py::array_t<float>>
 OpenMPEquSolver::step(int iteration) {
+  // The red/black sweeps use the schedule chosen at construction.
+  omp_set_schedule(static_cast<omp_sched_t>(sched_kind), sched_chunk);
   for (int i = 0; i < iteration; ++i) {
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(runtime)
     for (int j = 1; j < n_mid; ++j) {
       update_equation(j);
     }
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(runtime)
     for (int j = n_mid; j < N; ++j) {
       update_equation(j);
     }

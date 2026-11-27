@@ -21,3 +21,8 @@ Makefile
 __pycache__
 pybind11/
 .DS_Store
+
+# PAGP Lab EL
+.venv/
+bench/data/
+.pytest_cache/
