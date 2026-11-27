@@ -1,6 +1,6 @@
 {
   "env": {
-    "date": "2026-11-28 01:14:53",
+    "date": "2026-11-28 01:33:50",
     "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
     "cpu_model": "AMD Ryzen 7 6800H with Radeon Graphics",
     "logical_cpus": 16,
@@ -69,8 +69,8 @@
       {
         "input": "square10",
         "backend": "cuda",
-        "time_s": 0.0661,
-        "speedup_vs_gcc": 360.5809379727685
+        "time_s": 0.9221,
+        "speedup_vs_gcc": 25.847955753172105
       },
       {
         "input": "circle10",
@@ -105,8 +105,8 @@
       {
         "input": "circle10",
         "backend": "cuda",
-        "time_s": 0.06,
-        "speedup_vs_gcc": 390.065
+        "time_s": 0.9255,
+        "speedup_vs_gcc": 25.287844408427876
       }
     ],
     "n_vars": {
@@ -402,45 +402,45 @@
     "block": [
       {
         "block": 32,
-        "time_s": 0.0671
+        "time_s": 0.9238
       },
       {
         "block": 64,
-        "time_s": 0.0679
+        "time_s": 0.9204
       },
       {
         "block": 128,
-        "time_s": 0.0646
+        "time_s": 0.9278
       },
       {
         "block": 256,
-        "time_s": 0.0737
+        "time_s": 0.9297
       },
       {
         "block": 512,
-        "time_s": 0.0663
+        "time_s": 0.922
       },
       {
         "block": 1024,
-        "time_s": 0.0666
+        "time_s": 0.9147
       }
     ],
     "grid": [
       {
         "grid": "4x4",
-        "time_s": 0.0562
+        "time_s": 2.0022
       },
       {
         "grid": "8x8",
-        "time_s": 0.0466
+        "time_s": 1.2902
       },
       {
         "grid": "16x16",
-        "time_s": 0.0506
+        "time_s": 1.3953
       },
       {
         "grid": "32x32",
-        "time_s": 0.052
+        "time_s": 1.7372
       }
     ]
   },
@@ -448,16 +448,16 @@
     {
       "backend": "cuda",
       "input": "circle10",
-      "equ": 0.0643,
-      "grid": 0.0552,
-      "grid_over_equ": 0.8584758942457232
+      "equ": 0.9258,
+      "grid": 1.2909,
+      "grid_over_equ": 1.3943616331821127
     },
     {
       "backend": "cuda",
       "input": "square10",
-      "equ": 0.062,
-      "grid": 0.0577,
-      "grid_over_equ": 0.9306451612903226
+      "equ": 0.924,
+      "grid": 1.2892,
+      "grid_over_equ": 1.3952380952380952
     },
     {
       "backend": "gcc",

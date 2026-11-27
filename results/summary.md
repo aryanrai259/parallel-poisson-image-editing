@@ -12,13 +12,13 @@ Mode: full, 3 repeats per configuration (medians).
 | square10 | MPI | 13.5544 | 1.8x |
 | square10 | OpenACC (multicore) | 11.2706 | 2.1x |
 | square10 | OpenACC (GPU) | 1.4625 | 16.3x |
-| square10 | CUDA | 0.0661 | 360.6x |
+| square10 | CUDA | 0.9221 | 25.8x |
 | circle10 | Serial C++ (gcc) | 23.4039 | 1.0x |
 | circle10 | OpenMP | 5.6646 | 4.1x |
 | circle10 | MPI | 14.1275 | 1.7x |
 | circle10 | OpenACC (multicore) | 11.5072 | 2.0x |
 | circle10 | OpenACC (GPU) | 1.4152 | 16.5x |
-| circle10 | CUDA | 0.0600 | 390.1x |
+| circle10 | CUDA | 0.9255 | 25.3x |
 
 ## E2 OpenMP strong scaling
 
@@ -63,16 +63,16 @@ sync every 1000: 13.1962 s
 
 ## E5 CUDA launch geometry
 
-block 32: 0.0671 s
-block 64: 0.0679 s
-block 128: 0.0646 s
-block 256: 0.0737 s
-block 512: 0.0663 s
-block 1024: 0.0666 s
-tile 4x4: 0.0562 s
-tile 8x8: 0.0466 s
-tile 16x16: 0.0506 s
-tile 32x32: 0.0520 s
+block 32: 0.9238 s
+block 64: 0.9204 s
+block 128: 0.9278 s
+block 256: 0.9297 s
+block 512: 0.9220 s
+block 1024: 0.9147 s
+tile 4x4: 2.0022 s
+tile 8x8: 1.2902 s
+tile 16x16: 1.3953 s
+tile 32x32: 1.7372 s
 
 ## E7 Accuracy against the exact solution (20000 iterations)
 

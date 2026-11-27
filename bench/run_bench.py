@@ -40,6 +40,15 @@ FIELDS = [
     "schedule", "chunk", "block", "grid", "sync", "repeat", "time_s",
     "err_r", "err_g", "err_b", "timestamp",
 ]
+# Identity fields for a config+repeat: everything that selects *what to run*.
+# n_vars is deliberately excluded even though it sits between "input" and
+# "iters" in FIELDS -- it's an output, only known from a run's own stdout
+# ("# of vars: N"), never set on a freshly generated cfg. Keying done-row
+# lookup off FIELDS[:13] (which includes n_vars) made every cfg's "" miss
+# every already-written row's real n_vars, so resuming never actually
+# skipped anything -- it silently re-ran and duplicated every row.
+KEY_FIELDS = ["exp", "backend", "method", "input", "iters", "threads", "ranks",
+              "schedule", "chunk", "block", "grid", "sync"]
 GPU_BACKENDS = {"cuda", "openacc", "taichi-gpu"}
 RE_TIME = re.compile(r"Time elapsed: ([0-9.eE+-]+)s")
 RE_VARS = re.compile(r"# of vars: (\d+)")
@@ -79,7 +88,7 @@ def shape_args(name: str) -> list:
 
 
 def key(cfg: dict, repeat: int) -> tuple:
-    return tuple(str(cfg.get(f, "")) for f in FIELDS[:13]) + (str(repeat),)
+    return tuple(str(cfg.get(f, "")) for f in KEY_FIELDS) + (str(repeat),)
 
 
 def run_once(cfg: dict, timeout: float) -> dict:
@@ -278,7 +287,7 @@ def main() -> None:
     if CSV_PATH.exists():
         with open(CSV_PATH) as f:
             for row in csv.DictReader(f):
-                done.add(tuple(row[k] for k in FIELDS[:13]) + (row["repeat"],))
+                done.add(tuple(row[k] for k in KEY_FIELDS) + (row["repeat"],))
     new_file = not CSV_PATH.exists()
     with open(CSV_PATH, "a", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=FIELDS)
