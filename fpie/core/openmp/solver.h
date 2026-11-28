@@ -15,7 +15,7 @@ class OpenMPEquSolver : public EquSolver {
  public:
   // sched_kind follows omp_sched_t: 1 static, 2 dynamic, 3 guided.
   // sched_chunk 0 selects the runtime default chunk size.
-  OpenMPEquSolver(int n_cpu, int sched_kind = 1, int sched_chunk = 0);
+  explicit OpenMPEquSolver(int n_cpu, int sched_kind = 1, int sched_chunk = 0);
   ~OpenMPEquSolver();
 
   py::array_t<int> partition(py::array_t<int> mask);
