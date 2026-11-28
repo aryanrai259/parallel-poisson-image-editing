@@ -7,7 +7,8 @@
 void cuda_check(const char* what) {
   cudaError_t err = cudaGetLastError();
   if (err != cudaSuccess) {
-    throw std::runtime_error(std::string(what) + ": " + cudaGetErrorString(err));
+    throw std::runtime_error(std::string(what) + ": " +
+                             cudaGetErrorString(err));
   }
 }
 

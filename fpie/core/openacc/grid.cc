@@ -78,13 +78,17 @@ OpenACCGridSolver::step(int iteration) {
         if (mk[id]) {
           const int o3 = id * 3;
           const int u = o3 - s3, l = o3 - 3, rr = o3 + 3, d = o3 + s3;
-          w[o3 + 0] = (g[o3 + 0] + t[u + 0] + t[l + 0] + t[rr + 0] + t[d + 0]) / 4.0f;
-          w[o3 + 1] = (g[o3 + 1] + t[u + 1] + t[l + 1] + t[rr + 1] + t[d + 1]) / 4.0f;
-          w[o3 + 2] = (g[o3 + 2] + t[u + 2] + t[l + 2] + t[rr + 2] + t[d + 2]) / 4.0f;
+          w[o3 + 0] =
+              (g[o3 + 0] + t[u + 0] + t[l + 0] + t[rr + 0] + t[d + 0]) / 4.0f;
+          w[o3 + 1] =
+              (g[o3 + 1] + t[u + 1] + t[l + 1] + t[rr + 1] + t[d + 1]) / 4.0f;
+          w[o3 + 2] =
+              (g[o3 + 2] + t[u + 2] + t[l + 2] + t[rr + 2] + t[d + 2]) / 4.0f;
         }
       }
     }
-#pragma acc parallel loop present(mk[0 : size], t[0 : 3 * size], w[0 : 3 * size])
+#pragma acc parallel loop present(mk[0 : size], t[0 : 3 * size], \
+                                  w[0 : 3 * size])
     for (int id = 0; id < size; ++id) {
       if (mk[id]) {
         const int o3 = id * 3;
@@ -102,9 +106,12 @@ OpenACCGridSolver::step(int iteration) {
     if (mk[id]) {
       const int o3 = id * 3;
       const int u = o3 - s3, l = o3 - 3, rr = o3 + 3, d = o3 + s3;
-      float r0 = g[o3 + 0] + t[u + 0] + t[l + 0] + t[rr + 0] + t[d + 0] - t[o3 + 0] * 4.0f;
-      float r1 = g[o3 + 1] + t[u + 1] + t[l + 1] + t[rr + 1] + t[d + 1] - t[o3 + 1] * 4.0f;
-      float r2 = g[o3 + 2] + t[u + 2] + t[l + 2] + t[rr + 2] + t[d + 2] - t[o3 + 2] * 4.0f;
+      float r0 = g[o3 + 0] + t[u + 0] + t[l + 0] + t[rr + 0] + t[d + 0] -
+                 t[o3 + 0] * 4.0f;
+      float r1 = g[o3 + 1] + t[u + 1] + t[l + 1] + t[rr + 1] + t[d + 1] -
+                 t[o3 + 1] * 4.0f;
+      float r2 = g[o3 + 2] + t[u + 2] + t[l + 2] + t[rr + 2] + t[d + 2] -
+                 t[o3 + 2] * 4.0f;
       e0 += r0 < 0 ? -r0 : r0;
       e1 += r1 < 0 ? -r1 : r1;
       e2 += r2 < 0 ? -r2 : r2;

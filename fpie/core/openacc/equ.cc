@@ -98,9 +98,12 @@ OpenACCEquSolver::step(int iteration) {
         const int o3 = i * 3, o4 = i * 4;
         const int i0 = a[o4 + 0] * 3, i1 = a[o4 + 1] * 3;
         const int i2 = a[o4 + 2] * 3, i3 = a[o4 + 3] * 3;
-        x[o3 + 0] = (b[o3 + 0] + x[i0 + 0] + x[i1 + 0] + x[i2 + 0] + x[i3 + 0]) / 4;
-        x[o3 + 1] = (b[o3 + 1] + x[i0 + 1] + x[i1 + 1] + x[i2 + 1] + x[i3 + 1]) / 4;
-        x[o3 + 2] = (b[o3 + 2] + x[i0 + 2] + x[i1 + 2] + x[i2 + 2] + x[i3 + 2]) / 4;
+        x[o3 + 0] =
+            (b[o3 + 0] + x[i0 + 0] + x[i1 + 0] + x[i2 + 0] + x[i3 + 0]) / 4;
+        x[o3 + 1] =
+            (b[o3 + 1] + x[i0 + 1] + x[i1 + 1] + x[i2 + 1] + x[i3 + 1]) / 4;
+        x[o3 + 2] =
+            (b[o3 + 2] + x[i0 + 2] + x[i1 + 2] + x[i2 + 2] + x[i3 + 2]) / 4;
       }
     }
   }
